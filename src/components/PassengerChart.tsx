@@ -1,5 +1,6 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { PassengerTimeSeriesPoint } from '../types/simulation';
+import { CHART_ANIMATION_DURATION_MS } from '../config';
 
 interface PassengerChartProps {
   data: PassengerTimeSeriesPoint[];
@@ -10,7 +11,7 @@ export default function PassengerChart({ data }: PassengerChartProps) {
     <div className="panel chart-panel">
       <h3 className="panel-title">Passenger Overview</h3>
       <div className="chart-container">
-        <ResponsiveContainer width="100%" height={160}>
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
             <defs>
               <linearGradient id="servedGrad" x1="0" y1="0" x2="0" y2="1">
@@ -20,6 +21,10 @@ export default function PassengerChart({ data }: PassengerChartProps) {
               <linearGradient id="waitingGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
                 <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="cancelledGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -37,6 +42,9 @@ export default function PassengerChart({ data }: PassengerChartProps) {
               fillOpacity={1}
               fill="url(#servedGrad)"
               name="Served"
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION_MS}
+              animationEasing="ease-out"
             />
             <Area
               type="monotone"
@@ -46,6 +54,21 @@ export default function PassengerChart({ data }: PassengerChartProps) {
               fillOpacity={1}
               fill="url(#waitingGrad)"
               name="Waiting"
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION_MS}
+              animationEasing="ease-out"
+            />
+            <Area
+              type="monotone"
+              dataKey="cancelled"
+              stroke="#ef4444"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#cancelledGrad)"
+              name="Cancelled"
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION_MS}
+              animationEasing="ease-out"
             />
           </AreaChart>
         </ResponsiveContainer>

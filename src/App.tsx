@@ -12,56 +12,55 @@ import './App.css';
 export default function App() {
   const {
     state,
-    connected,
     connectionStatus,
     reconnectAttempt,
     isRunning,
     speed,
-    vehicleCount,
     start,
     stop,
     reset,
-    setSpeed,
-    setVehicleCount,
   } = useWebSocketSimulation();
 
   return (
     <div className="app">
-      <div className="dashboard-top">
-        <Header
-          currentTime={state.metrics.currentTime}
-          connected={connected}
-          connectionStatus={connectionStatus}
-          reconnectAttempt={reconnectAttempt}
-        />
-        <MetricsPanel metrics={state.metrics} />
-      </div>
+      <div className="dashboard-layout">
+        <div className="dashboard-layout-left">
+          <div className="dashboard-left-top">
+            <div className="dashboard-left-top-row">
+              <Header
+                currentTime={state.metrics.currentTime}
+                connectionStatus={connectionStatus}
+                reconnectAttempt={reconnectAttempt}
+              />
+              <MetricsPanel metrics={state.metrics} />
+            </div>
+          </div>
 
-      <main className="dashboard-body">
-        <aside className="dashboard-left">
-          <SimulationControls
-            isRunning={isRunning}
-            speed={speed}
-            vehicleCount={vehicleCount}
-            onStart={start}
-            onStop={stop}
-            onReset={reset}
-            onSpeedChange={setSpeed}
-            onVehicleCountChange={setVehicleCount}
-          />
-        </aside>
+          <div className="dashboard-left-body">
+            <aside className="dashboard-left-controls">
+              <SimulationControls
+                isRunning={isRunning}
+                speed={speed}
+                maxNumVehicles={state.maxNumVehicles}
+                onStart={start}
+                onStop={stop}
+                onReset={reset}
+              />
+            </aside>
 
-        <section className="dashboard-center">
-          <NetworkMap vehicles={state.vehicles} passengers={state.passengers} />
-        </section>
+            <section className="dashboard-left-map">
+              <NetworkMap vehicles={state.vehicles} passengers={state.passengers} />
+            </section>
+          </div>
+        </div>
 
-        <aside className="dashboard-right">
+        <aside className="dashboard-layout-right">
           <WaitTimeChart data={state.waitTimeDistribution} />
           <VehicleUtilChart data={state.utilizationHistory} />
           <PassengerChart data={state.passengerHistory} />
           <TripStatusChart data={state.tripStatusData} />
         </aside>
-      </main>
+      </div>
     </div>
   );
 }

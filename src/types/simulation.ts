@@ -72,6 +72,7 @@ export interface PassengerTimeSeriesPoint {
   time: number;
   served: number;
   waiting: number;
+  cancelled: number;
 }
 
 export interface TripStatusData {
@@ -82,6 +83,7 @@ export interface TripStatusData {
 
 export interface SimulationState {
   metrics: SimulationMetrics;
+  maxNumVehicles: number;
   vehicles: Vehicle[];
   passengers: Passenger[];
   waitTimeDistribution: WaitTimeDistribution[];
@@ -91,7 +93,7 @@ export interface SimulationState {
   linkLoads: Record<string, number>;
 }
 
-export type SimulationCommandType = 'start' | 'stop' | 'reset' | 'setSpeed' | 'setVehicleCount';
+export type SimulationCommandType = 'start' | 'stop' | 'reset' | 'setSpeed';
 
 export interface SimulationCommand {
   type: SimulationCommandType;
@@ -99,7 +101,6 @@ export interface SimulationCommand {
 }
 
 export interface SimulationConfig {
-  vehicleCount: number;
   speed: number;
   demandRate: number;
 }

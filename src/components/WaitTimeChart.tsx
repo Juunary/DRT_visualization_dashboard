@@ -1,12 +1,13 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { WaitTimeDistribution } from '../types/simulation';
+import { CHART_ANIMATION_DURATION_MS } from '../config';
 
 interface WaitTimeChartProps {
   data: WaitTimeDistribution[];
 }
 
 /** Bin centers on 0–10 (min) axis; 10+ sits at 10. */
-const WAIT_BIN_ORDER = ['0-2', '3-5', '6-10', '10+'] as const;
+const WAIT_BIN_ORDER = ['0-2', '3-5', '6-10'] as const;
 const WAIT_BIN_X: Record<string, number> = {
   '0-2': 1,
   '3-5': 4,
@@ -30,7 +31,7 @@ export default function WaitTimeChart({ data }: WaitTimeChartProps) {
     <div className="panel chart-panel">
       <h3 className="panel-title">Wait Time Distribution (min)</h3>
       <div className="chart-container">
-        <ResponsiveContainer width="100%" height={160}>
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
             <XAxis
@@ -50,7 +51,15 @@ export default function WaitTimeChart({ data }: WaitTimeChartProps) {
                 (payload?.[0]?.payload as { range?: string } | undefined)?.range ?? ''
               }
             />
-            <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={36} />
+            <Bar
+              dataKey="count"
+              fill="#3b82f6"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={36}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION_MS}
+              animationEasing="ease-out"
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

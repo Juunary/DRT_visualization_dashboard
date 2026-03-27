@@ -1,23 +1,21 @@
 interface SimulationControlsProps {
   isRunning: boolean;
   speed: number;
-  vehicleCount: number;
+  maxNumVehicles: number;
   onStart: () => void;
   onStop: () => void;
   onReset: () => void;
-  onSpeedChange: (speed: number) => void;
-  onVehicleCountChange: (count: number) => void;
+  // onSpeedChange: (speed: number) => void;
 }
 
 export default function SimulationControls({
   isRunning,
   speed,
-  vehicleCount,
+  maxNumVehicles,
   onStart,
   onStop,
   onReset,
-  onSpeedChange,
-  onVehicleCountChange,
+  // onSpeedChange,
 }: SimulationControlsProps) {
   return (
     <div className="panel controls-panel">
@@ -38,7 +36,7 @@ export default function SimulationControls({
           </button>
         </div>
 
-        <div className="control-group">
+        {/* <div className="control-group">
           <label className="control-label">
             Speed: <strong>{speed}x</strong>
           </label>
@@ -50,21 +48,12 @@ export default function SimulationControls({
             onChange={(e) => onSpeedChange(Number(e.target.value))}
             className="slider"
           />
-        </div>
+        </div> */}
 
         <div className="control-group">
           <label className="control-label">
-            Vehicles: <strong>{vehicleCount}</strong>
+            Vehicles: <strong>{maxNumVehicles > 0 ? maxNumVehicles : '—'}</strong>
           </label>
-          <input
-            type="range"
-            min={1}
-            max={20}
-            value={vehicleCount}
-            onChange={(e) => onVehicleCountChange(Number(e.target.value))}
-            className="slider"
-            disabled={isRunning}
-          />
         </div>
       </div>
     </div>

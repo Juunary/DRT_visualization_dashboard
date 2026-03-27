@@ -27,7 +27,7 @@ export default function MetricsPanel({ metrics }: MetricsPanelProps) {
   return (
     <div className="metrics-panel">
       <MetricCard
-        label="Active Vehicles"
+        label="Active DRT Vehicles"
         value={`${metrics.activeVehicles} / ${metrics.totalVehicles}`}
         color="#3b82f6"
       />
@@ -37,19 +37,19 @@ export default function MetricsPanel({ metrics }: MetricsPanelProps) {
         color="#10b981"
       />
       <MetricCard
-        label="Avg Wait Time"
+        label="Average Wait Time"
         value={metrics.averageWaitTime}
         unit=" min"
         color="#f59e0b"
       />
       <MetricCard
-        label="Avg Travel Time"
+        label="Average Travel Time"
         value={metrics.averageTravelTime}
         unit=" min"
         color="#8b5cf6"
       />
       <MetricCard
-        label="Cancel count"
+        label="Canceled Count"
         value={metrics.cancelCount ?? 0}
         color="#ec4899"
       />

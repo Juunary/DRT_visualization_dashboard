@@ -9,7 +9,7 @@ interface NetworkMapProps {
 
 const PADDING = 20;
 const MAP_WIDTH = 200;
-const MAP_HEIGHT = 190;
+const MAP_HEIGHT = 200;
 
 const nodeById = new Map(nodes.map(n => [n.id, n]));
 
@@ -251,7 +251,7 @@ export default function NetworkMap({ vehicles, passengers }: NetworkMapProps) {
             <span className="legend-dot" style={{ background: '#10b981' }} /> Carrying
           </div>
           <div className="legend-item">
-            <span className="legend-dot" style={{ background: '#f59e0b', opacity: 0.4 }} /> Waiting PAX
+            <span className="legend-dot" style={{ background: '#f59e0b', opacity: 0.4 }} /> Waiting Passenger
           </div>
         </div>
       </div>

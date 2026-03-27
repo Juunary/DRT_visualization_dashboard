@@ -2,7 +2,6 @@ import type { ConnectionStatus } from '../hooks/useWebSocketSimulation';
 
 interface HeaderProps {
   currentTime: number;
-  connected: boolean;
   connectionStatus: ConnectionStatus;
   reconnectAttempt: number;
 }
@@ -16,16 +15,19 @@ export default function Header({ currentTime, connectionStatus, reconnectAttempt
 
   const statusLabel = () => {
     switch (connectionStatus) {
-      case 'connected': return 'Connected';
-      case 'reconnecting': return `Reconnecting (#${reconnectAttempt})`;
-      case 'disconnected': return 'Disconnected';
+      case 'connected':
+        return 'Connected';
+      case 'reconnecting':
+        return `Reconnecting (#${reconnectAttempt})`;
+      case 'disconnected':
+        return 'Disconnected';
     }
   };
 
   return (
     <header className="dashboard-header">
       <div className="header-title">
-        <h1>Sioux Falls DRT</h1>
+        <h1>DRT Simulation Dashboard</h1>
         <span className="header-subtitle">Demand Responsive Transit Simulation</span>
       </div>
       <div className="header-info">

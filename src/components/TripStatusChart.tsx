@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { TripStatusData } from '../types/simulation';
+import { CHART_ANIMATION_DURATION_MS } from '../config';
 
 interface TripStatusChartProps {
   data: TripStatusData[];
@@ -12,7 +13,7 @@ export default function TripStatusChart({ data }: TripStatusChartProps) {
     <div className="panel chart-panel">
       <h3 className="panel-title">Trip Status</h3>
       <div className="chart-container">
-        <ResponsiveContainer width="100%" height={160}>
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={total > 0 ? data : [{ name: 'No Data', value: 1, color: '#334155' }]}
@@ -22,6 +23,9 @@ export default function TripStatusChart({ data }: TripStatusChartProps) {
               outerRadius={60}
               paddingAngle={2}
               dataKey="value"
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION_MS}
+              animationEasing="ease-out"
             >
               {(total > 0 ? data : [{ name: 'No Data', value: 1, color: '#334155' }]).map(
                 (entry, index) => (

@@ -174,6 +174,7 @@ def build_state(environment):
 
     return {
         'metrics': metrics,
+        'maxNumVehicles': cfg.MAX_NUM_VEHICLES,
         'vehicles': [extract_vehicle(v, environment) for v in environment.vehicle_list],
         'passengers': visible_passengers,
         'waitTimeDistribution': compute_wait_time_distribution(environment),
@@ -226,7 +227,8 @@ def simulation_loop():
                 passenger_history.append({
                     'time': env.curr_time,
                     'served': m['totalPassengersServed'],
-                    'waiting': m['totalPassengersWaiting']
+                    'waiting': m['totalPassengersWaiting'],
+                    'cancelled': m['cancelCount'],
                 })
                 if len(passenger_history) > 200:
                     passenger_history.pop(0)
@@ -243,6 +245,7 @@ def simulation_loop():
 @socketio.on('connect')
 def handle_connect():
     global env
+    emit('sim_meta', {'maxNumVehicles': cfg.MAX_NUM_VEHICLES})
     if env is None:
         reset_simulation()
     with env_lock:
@@ -277,9 +280,6 @@ def handle_command(data):
 
     elif cmd == 'setSpeed':
         sim_speed = payload if payload else 1
-
-    elif cmd == 'setVehicleCount':
-        pass
 
 
 @flask_app.route('/health')

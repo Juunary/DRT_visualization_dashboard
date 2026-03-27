@@ -5,7 +5,7 @@ import { WS_URL, THROTTLE_MS } from '../config';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'reconnecting';
 
-const INITIAL_STATE: SimulationState = {
+export const SIMULATION_INITIAL_STATE: SimulationState = {
   metrics: {
     currentTime: 0,
     totalPassengersServed: 0,
@@ -18,6 +18,7 @@ const INITIAL_STATE: SimulationState = {
     activeVehicles: 0,
     totalVehicles: 0,
   },
+  maxNumVehicles: 0,
   vehicles: [],
   passengers: [],
   waitTimeDistribution: [],
@@ -29,12 +30,13 @@ const INITIAL_STATE: SimulationState = {
 
 export function useWebSocketSimulation() {
   const socketRef = useRef<Socket | null>(null);
-  const [state, setState] = useState<SimulationState>(INITIAL_STATE);
+  /** Start 전에는 서버 `state`를 화면에 반영하지 않음 */
+  const applyServerStateRef = useRef(false);
+  const [state, setState] = useState<SimulationState>(SIMULATION_INITIAL_STATE);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
   const [reconnectAttempt, setReconnectAttempt] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeedState] = useState(1);
-  const [vehicleCount, setVehicleCountState] = useState(4);
 
   const lastUpdateRef = useRef(0);
   const pendingStateRef = useRef<SimulationState | null>(null);
@@ -62,6 +64,15 @@ export function useWebSocketSimulation() {
     }
   }, [flushPendingState]);
 
+  const clearPendingVisualUpdates = useCallback(() => {
+    pendingStateRef.current = null;
+    lastUpdateRef.current = 0;
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     const socket = io(WS_URL, {
       reconnection: true,
@@ -74,11 +85,19 @@ export function useWebSocketSimulation() {
     socketRef.current = socket;
 
     socket.on('connect', () => {
+      applyServerStateRef.current = false;
+      clearPendingVisualUpdates();
+      setState(SIMULATION_INITIAL_STATE);
+      setIsRunning(false);
       setConnectionStatus('connected');
       setReconnectAttempt(0);
     });
 
     socket.on('disconnect', () => {
+      applyServerStateRef.current = false;
+      clearPendingVisualUpdates();
+      setState(SIMULATION_INITIAL_STATE);
+      setIsRunning(false);
       setConnectionStatus('disconnected');
     });
 
@@ -96,24 +115,28 @@ export function useWebSocketSimulation() {
       setConnectionStatus('disconnected');
     });
 
+    socket.on('sim_meta', (payload: { maxNumVehicles: number }) => {
+      setState(prev => ({ ...prev, maxNumVehicles: payload.maxNumVehicles }));
+    });
+
     socket.on('state', (data: SimulationState) => {
+      if (!applyServerStateRef.current) return;
       throttledSetState(data);
     });
 
     return () => {
       socket.disconnect();
       socketRef.current = null;
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
+      clearPendingVisualUpdates();
     };
-  }, [throttledSetState]);
+  }, [throttledSetState, clearPendingVisualUpdates]);
 
   const sendCommand = useCallback((type: string, payload?: number) => {
     socketRef.current?.emit('command', { type, payload });
   }, []);
 
   const start = useCallback(() => {
+    applyServerStateRef.current = true;
     sendCommand('start');
     setIsRunning(true);
   }, [sendCommand]);
@@ -124,18 +147,16 @@ export function useWebSocketSimulation() {
   }, [sendCommand]);
 
   const reset = useCallback(() => {
-    sendCommand('reset', vehicleCount);
+    applyServerStateRef.current = false;
+    clearPendingVisualUpdates();
+    setState(prev => ({ ...SIMULATION_INITIAL_STATE, maxNumVehicles: prev.maxNumVehicles }));
+    sendCommand('reset');
     setIsRunning(false);
-  }, [sendCommand, vehicleCount]);
+  }, [sendCommand, clearPendingVisualUpdates]);
 
   const setSpeed = useCallback((newSpeed: number) => {
     setSpeedState(newSpeed);
     sendCommand('setSpeed', newSpeed);
-  }, [sendCommand]);
-
-  const setVehicleCount = useCallback((count: number) => {
-    setVehicleCountState(count);
-    sendCommand('setVehicleCount', count);
   }, [sendCommand]);
 
   return {
@@ -145,11 +166,9 @@ export function useWebSocketSimulation() {
     reconnectAttempt,
     isRunning,
     speed,
-    vehicleCount,
     start,
     stop,
     reset,
     setSpeed,
-    setVehicleCount,
   };
 }
