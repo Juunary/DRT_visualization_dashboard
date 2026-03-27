@@ -19,11 +19,11 @@ cd server
 python server.py
 ```
 
-## 클라이언트 환경 세팅
-
-### 설치 및 실행
+### 클라이언트 실행
+node version >= 18
 
 ```bash
+cd src
 npm install
 npm run dev
 ```
