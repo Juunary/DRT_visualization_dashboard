@@ -81,9 +81,19 @@ export interface TripStatusData {
   color: string;
 }
 
-export interface SimulationState {
-  metrics: SimulationMetrics;
+export interface SimulationConfigPayload {
   maxNumVehicles: number;
+  vehCapacity: number;
+  maxNumRequest: number;
+  maxWaitTime: number;
+  hiddenDim: number;
+  batchSize: number;
+  learningRate: number;
+}
+
+/** 서버 `config.py` / `sim_meta`와 동기화되는 시뮬·학습 메타(표시 전용) */
+export interface SimulationState extends SimulationConfigPayload {
+  metrics: SimulationMetrics;
   vehicles: Vehicle[];
   passengers: Passenger[];
   waitTimeDistribution: WaitTimeDistribution[];

@@ -42,6 +42,12 @@ export default function App() {
                 isRunning={isRunning}
                 speed={speed}
                 maxNumVehicles={state.maxNumVehicles}
+                vehCapacity={state.vehCapacity}
+                maxNumRequest={state.maxNumRequest}
+                maxWaitTime={state.maxWaitTime}
+                hiddenDim={state.hiddenDim}
+                batchSize={state.batchSize}
+                learningRate={state.learningRate}
                 onStart={start}
                 onStop={stop}
                 onReset={reset}

@@ -320,6 +320,53 @@
   color: var(--text-primary);
 }
 
+.control-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.2));
+}
+
+.control-config-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.control-config-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-config-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.8rem;
+}
+
+.control-config-row dt {
+  margin: 0;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.control-config-row dd {
+  margin: 0;
+  text-align: right;
+}
+
+.control-config-row dd strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .slider {
   -webkit-appearance: none;
   appearance: none;

@@ -2,20 +2,41 @@ interface SimulationControlsProps {
   isRunning: boolean;
   speed: number;
   maxNumVehicles: number;
+  vehCapacity: number;
+  maxNumRequest: number;
+  maxWaitTime: number;
+  hiddenDim: number;
+  batchSize: number;
+  learningRate: number;
   onStart: () => void;
   onStop: () => void;
   onReset: () => void;
-  // onSpeedChange: (speed: number) => void;
+}
+
+function fmtInt(n: number): string {
+  return n > 0 ? String(n) : '—';
+}
+
+function fmtLearningRate(x: number): string {
+  if (x === 0 || !Number.isFinite(x)) return '—';
+  const str = x.toExponential();
+  return str
+    .replace(/^([+-]?)(\d)\.0(e[-+]\d+)$/, '$1$2$3')
+    .replace(/e\+(?=\d)/, 'e');
 }
 
 export default function SimulationControls({
   isRunning,
-  speed,
   maxNumVehicles,
+  vehCapacity,
+  maxWaitTime,
+  maxNumRequest,
+  hiddenDim,
+  batchSize,
+  learningRate,
   onStart,
   onStop,
   onReset,
-  // onSpeedChange,
 }: SimulationControlsProps) {
   return (
     <div className="panel controls-panel">
@@ -23,37 +44,69 @@ export default function SimulationControls({
       <div className="controls-grid">
         <div className="control-buttons">
           {isRunning ? (
-            <button className="btn btn-warning" onClick={onStop}>
+            <button type="button" className="btn btn-warning" onClick={onStop}>
               ⏸ Pause
             </button>
           ) : (
-            <button className="btn btn-primary" onClick={onStart}>
+            <button type="button" className="btn btn-primary" onClick={onStart}>
               ▶ Start
             </button>
           )}
-          <button className="btn btn-danger" onClick={onReset}>
+          <button type="button" className="btn btn-danger" onClick={onReset}>
             ↺ Reset
           </button>
         </div>
 
-        {/* <div className="control-group">
-          <label className="control-label">
-            Speed: <strong>{speed}x</strong>
-          </label>
-          <input
-            type="range"
-            min={1}
-            max={10}
-            value={speed}
-            onChange={(e) => onSpeedChange(Number(e.target.value))}
-            className="slider"
-          />
-        </div> */}
+        <div className="control-config">
+          <div className="control-config-title">Environment</div>
+          <dl className="control-config-rows">
+            <div className="control-config-row">
+              <dt>Vehicles</dt>
+              <dd>
+                <strong>{fmtInt(maxNumVehicles)}</strong>
+              </dd>
+            </div>
+            <div className="control-config-row">
+              <dt>Vehicle capacity</dt>
+              <dd>
+                <strong>{fmtInt(vehCapacity)}</strong>
+              </dd>
+            </div>
+            <div className="control-config-row">
+              <dt>Max requests (slots)</dt>
+              <dd>
+                <strong>{fmtInt(maxNumRequest)}</strong>
+              </dd>
+            </div>
+            <div className="control-config-row">
+              <dt>Max wait time</dt>
+              <dd>
+                <strong>{fmtInt(maxWaitTime)}</strong> min
+              </dd>
+            </div>
+          </dl>
 
-        <div className="control-group">
-          <label className="control-label">
-            Vehicles: <strong>{maxNumVehicles > 0 ? maxNumVehicles : '—'}</strong>
-          </label>
+          <div className="control-config-title">Policy network (trained)</div>
+          <dl className="control-config-rows">
+            <div className="control-config-row">
+              <dt>Hidden dim</dt>
+              <dd>
+                <strong>{fmtInt(hiddenDim)}</strong>
+              </dd>
+            </div>
+            <div className="control-config-row">
+              <dt>Batch size</dt>
+              <dd>
+                <strong>{fmtInt(batchSize)}</strong>
+              </dd>
+            </div>
+            <div className="control-config-row">
+              <dt>Learning rate</dt>
+              <dd>
+                <strong>{fmtLearningRate(learningRate)}</strong>
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
     </div>

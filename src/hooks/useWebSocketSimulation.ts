@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { SimulationState } from '../types/simulation';
+import type { SimulationConfigPayload, SimulationState } from '../types/simulation';
 import { WS_URL, THROTTLE_MS } from '../config';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'reconnecting';
@@ -19,6 +19,12 @@ export const SIMULATION_INITIAL_STATE: SimulationState = {
     totalVehicles: 0,
   },
   maxNumVehicles: 0,
+  vehCapacity: 0,
+  maxNumRequest: 0,
+  maxWaitTime: 0,
+  hiddenDim: 0,
+  batchSize: 0,
+  learningRate: 0,
   vehicles: [],
   passengers: [],
   waitTimeDistribution: [],
@@ -28,9 +34,9 @@ export const SIMULATION_INITIAL_STATE: SimulationState = {
   linkLoads: {},
 };
 
+
 export function useWebSocketSimulation() {
   const socketRef = useRef<Socket | null>(null);
-  /** Start 전에는 서버 `state`를 화면에 반영하지 않음 */
   const applyServerStateRef = useRef(false);
   const [state, setState] = useState<SimulationState>(SIMULATION_INITIAL_STATE);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
@@ -115,8 +121,11 @@ export function useWebSocketSimulation() {
       setConnectionStatus('disconnected');
     });
 
-    socket.on('sim_meta', (payload: { maxNumVehicles: number }) => {
-      setState(prev => ({ ...prev, maxNumVehicles: payload.maxNumVehicles }));
+    socket.on('sim_meta', (payload: SimulationConfigPayload) => {
+      setState(prev => ({
+        ...prev,
+        ...payload,
+      }));
     });
 
     socket.on('state', (data: SimulationState) => {
@@ -149,7 +158,16 @@ export function useWebSocketSimulation() {
   const reset = useCallback(() => {
     applyServerStateRef.current = false;
     clearPendingVisualUpdates();
-    setState(prev => ({ ...SIMULATION_INITIAL_STATE, maxNumVehicles: prev.maxNumVehicles }));
+    setState(prev => ({
+      ...SIMULATION_INITIAL_STATE,
+      maxNumVehicles: prev.maxNumVehicles,
+      vehCapacity: prev.vehCapacity,
+      maxNumRequest: prev.maxNumRequest,
+      maxWaitTime: prev.maxWaitTime,
+      hiddenDim: prev.hiddenDim,
+      batchSize: prev.batchSize,
+      learningRate: prev.learningRate,
+    }));
     sendCommand('reset');
     setIsRunning(false);
   }, [sendCommand, clearPendingVisualUpdates]);

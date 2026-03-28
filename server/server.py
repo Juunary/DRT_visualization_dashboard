@@ -175,6 +175,12 @@ def build_state(environment):
     return {
         'metrics': metrics,
         'maxNumVehicles': cfg.MAX_NUM_VEHICLES,
+        'vehCapacity': cfg.VEH_CAPACITY,
+        'maxNumRequest': cfg.MAX_NUM_REQUEST,
+        'maxWaitTime': cfg.MAX_WAIT_TIME,
+        'hiddenDim': cfg.HIDDEN_DIM,
+        'batchSize': cfg.BATCH_SIZE,
+        'learningRate': cfg.LEARNING_RATE,
         'vehicles': [extract_vehicle(v, environment) for v in environment.vehicle_list],
         'passengers': visible_passengers,
         'waitTimeDistribution': compute_wait_time_distribution(environment),
@@ -242,10 +248,22 @@ def simulation_loop():
 
 # --------------- SocketIO Events ---------------
 
+def sim_config_payload():
+    return {
+        'maxNumVehicles': cfg.MAX_NUM_VEHICLES,
+        'vehCapacity': cfg.VEH_CAPACITY,
+        'maxNumRequest': cfg.MAX_NUM_REQUEST,
+        'maxWaitTime': cfg.MAX_WAIT_TIME,
+        'hiddenDim': cfg.HIDDEN_DIM,
+        'batchSize': cfg.BATCH_SIZE,
+        'learningRate': cfg.LEARNING_RATE,
+    }
+
+
 @socketio.on('connect')
 def handle_connect():
     global env
-    emit('sim_meta', {'maxNumVehicles': cfg.MAX_NUM_VEHICLES})
+    emit('sim_meta', sim_config_payload())
     if env is None:
         reset_simulation()
     with env_lock:
