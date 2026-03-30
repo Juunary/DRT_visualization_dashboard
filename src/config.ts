@@ -9,4 +9,4 @@ export function getWsUrl(): string {
 
 export const THROTTLE_MS = 100;
 
-export const CHART_ANIMATION_DURATION_MS = 75;
+export const CHART_ANIMATION_DURATION_MS = Math.round(THROTTLE_MS * 0.75);

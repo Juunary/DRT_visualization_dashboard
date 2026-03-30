@@ -367,6 +367,139 @@
   font-weight: 600;
 }
 
+.control-vehicles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.2));
+}
+
+.control-vehicles-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.control-vehicles-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.control-vehicle-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.control-vehicle-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.35));
+  background: var(--bg-tertiary, rgba(15, 23, 42, 0.45));
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.control-vehicle-chip:hover:not(:disabled) {
+  border-color: var(--accent-blue, #3b82f6);
+  color: var(--accent-blue, #3b82f6);
+}
+
+.control-vehicle-chip.is-selected {
+  border-color: var(--accent-blue, #3b82f6);
+  background: color-mix(in srgb, var(--accent-blue, #3b82f6) 18%, transparent);
+  color: var(--text-primary);
+}
+
+.control-vehicle-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.control-vehicle-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-vehicle-status-card {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.25));
+  background: var(--bg-tertiary, rgba(15, 23, 42, 0.35));
+}
+
+.control-vehicle-status-card-head {
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.control-vehicle-status-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-vehicle-status-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 6px 10px;
+  align-items: start;
+}
+
+.control-vehicle-status-row-block {
+  grid-template-columns: 1fr;
+}
+
+.control-vehicle-status-row dt {
+  margin: 0;
+  color: #cbd5e1;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.control-vehicle-status-row dd {
+  margin: 0;
+  color: #f8fafc;
+  word-break: break-word;
+}
+
+.control-vehicle-status-sub {
+  color: #e2e8f0;
+  font-weight: 400;
+}
+
+.control-vehicle-status-empty {
+  color: #94a3b8;
+}
+
+.control-vehicle-request-list {
+  margin: 4px 0 0;
+  padding-left: 1.1em;
+}
+
+.control-vehicle-request-list li {
+  margin-bottom: 2px;
+}
+
+.control-vehicle-status-missing {
+  color: #cbd5e1;
+  font-style: italic;
+}
+
 .slider {
   -webkit-appearance: none;
   appearance: none;
@@ -454,6 +587,89 @@
   flex: 1;
   min-height: 0;
   width: 100%;
+}
+
+/* ---- Request Information (replaces wait-time chart slot) ---- */
+.request-information-panel .panel-title {
+  margin-bottom: 4px;
+}
+
+.request-information-sub {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted, #94a3b8);
+  line-height: 1.35;
+}
+
+.request-information-sub strong {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.request-information-scroll {
+  overflow: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.2));
+}
+
+.request-information-empty {
+  margin: 0;
+  padding: 12px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.request-information-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  line-height: 1.3;
+}
+
+.request-information-table th,
+.request-information-table td {
+  padding: 5px 6px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.15));
+  white-space: nowrap;
+}
+
+.request-information-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-secondary);
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.request-information-table td {
+  color: #f1f5f9;
+}
+
+.request-information-table tbody tr:hover td {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.request-information-status {
+  display: inline-block;
+  font-weight: 500;
+}
+
+.request-information-status--waiting {
+  color: #fbbf24;
+}
+
+.request-information-status--picked_up {
+  color: #38bdf8;
+}
+
+.request-information-status--delivered {
+  color: #4ade80;
+}
+
+.request-information-status--cancelled {
+  color: #f87171;
 }
 
 /* ---- Recharts tooltip ---- */

@@ -46,38 +46,50 @@ export function useWebSocketSimulation() {
 
   const lastUpdateRef = useRef(0);
   const pendingStateRef = useRef<SimulationState | null>(null);
-  const rafIdRef = useRef<number | null>(null);
+  const throttleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const flushPendingState = useCallback(() => {
-    rafIdRef.current = null;
-    if (pendingStateRef.current) {
-      setState(pendingStateRef.current);
-      pendingStateRef.current = null;
+  const clearThrottleTimer = useCallback(() => {
+    if (throttleTimeoutRef.current !== null) {
+      clearTimeout(throttleTimeoutRef.current);
+      throttleTimeoutRef.current = null;
     }
   }, []);
 
-  const throttledSetState = useCallback((newState: SimulationState) => {
-    const now = performance.now();
-    if (now - lastUpdateRef.current >= THROTTLE_MS) {
-      lastUpdateRef.current = now;
-      setState(newState);
-      pendingStateRef.current = null;
-    } else {
-      pendingStateRef.current = newState;
-      if (rafIdRef.current === null) {
-        rafIdRef.current = requestAnimationFrame(flushPendingState);
+  const throttledSetState = useCallback(
+    (newState: SimulationState) => {
+      const now = performance.now();
+      const elapsed = now - lastUpdateRef.current;
+
+      if (elapsed >= THROTTLE_MS) {
+        clearThrottleTimer();
+        lastUpdateRef.current = now;
+        setState(newState);
+        pendingStateRef.current = null;
+        return;
       }
-    }
-  }, [flushPendingState]);
+
+      pendingStateRef.current = newState;
+      if (throttleTimeoutRef.current !== null) return;
+
+      const delay = THROTTLE_MS - elapsed;
+      throttleTimeoutRef.current = setTimeout(() => {
+        throttleTimeoutRef.current = null;
+        const pending = pendingStateRef.current;
+        if (pending) {
+          lastUpdateRef.current = performance.now();
+          setState(pending);
+          pendingStateRef.current = null;
+        }
+      }, delay);
+    },
+    [clearThrottleTimer],
+  );
 
   const clearPendingVisualUpdates = useCallback(() => {
+    clearThrottleTimer();
     pendingStateRef.current = null;
     lastUpdateRef.current = 0;
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-  }, []);
+  }, [clearThrottleTimer]);
 
   useEffect(() => {
     const socket = io(getWsUrl(), {
@@ -152,8 +164,9 @@ export function useWebSocketSimulation() {
 
   const stop = useCallback(() => {
     sendCommand('stop');
+    clearPendingVisualUpdates();
     setIsRunning(false);
-  }, [sendCommand]);
+  }, [sendCommand, clearPendingVisualUpdates]);
 
   const reset = useCallback(() => {
     applyServerStateRef.current = false;

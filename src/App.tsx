@@ -3,7 +3,8 @@ import Header from './components/Header';
 import SimulationControls from './components/SimulationControls';
 import NetworkMap from './components/NetworkMap';
 import MetricsPanel from './components/MetricsPanel';
-import WaitTimeChart from './components/WaitTimeChart';
+// import WaitTimeChart from './components/WaitTimeChart';
+import RequestInformation from './components/RequestInformation';
 import VehicleUtilChart from './components/VehicleUtilChart';
 import PassengerChart from './components/PassengerChart';
 import TripStatusChart from './components/TripStatusChart';
@@ -48,6 +49,8 @@ export default function App() {
                 hiddenDim={state.hiddenDim}
                 batchSize={state.batchSize}
                 learningRate={state.learningRate}
+                vehicles={state.vehicles}
+                passengers={state.passengers}
                 onStart={start}
                 onStop={stop}
                 onReset={reset}
@@ -61,7 +64,7 @@ export default function App() {
         </div>
 
         <aside className="dashboard-layout-right">
-          <WaitTimeChart data={state.waitTimeDistribution} />
+          <RequestInformation passengers={state.passengers} currentTime={state.metrics.currentTime} />
           <VehicleUtilChart data={state.utilizationHistory} />
           <PassengerChart data={state.passengerHistory} />
           <TripStatusChart data={state.tripStatusData} />

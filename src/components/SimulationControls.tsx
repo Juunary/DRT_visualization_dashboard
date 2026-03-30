@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Passenger, Vehicle } from '../types/simulation';
+
 interface SimulationControlsProps {
   isRunning: boolean;
   speed: number;
@@ -8,6 +11,8 @@ interface SimulationControlsProps {
   hiddenDim: number;
   batchSize: number;
   learningRate: number;
+  vehicles: Vehicle[];
+  passengers: Passenger[];
   onStart: () => void;
   onStop: () => void;
   onReset: () => void;
@@ -25,6 +30,75 @@ function fmtLearningRate(x: number): string {
     .replace(/e\+(?=\d)/, 'e');
 }
 
+function acceptedRequestsForVehicle(vehicleId: number, passengers: Passenger[]): Passenger[] {
+  return passengers.filter(
+    p =>
+      p.assignedVehicleId === vehicleId &&
+      (p.status === 'waiting' || p.status === 'picked_up'),
+  );
+}
+
+function passengerById(passengers: Passenger[], id: number | null): Passenger | undefined {
+  if (id == null) return undefined;
+  return passengers.find(p => p.id === id);
+}
+
+function requestSummary(p: Passenger): string {
+  return `#${p.id} ${p.originNodeId}→${p.destinationNodeId} · ${p.status} · req_t=${p.requestTime}`;
+}
+
+function VehicleStatusCard({ vehicle, passengers }: { vehicle: Vehicle; passengers: Passenger[] }) {
+  const accepted = acceptedRequestsForVehicle(vehicle.id, passengers);
+  const onboard = passengerById(passengers, vehicle.passengerId);
+  const lines: Passenger[] = [];
+  const seen = new Set<number>();
+  if (onboard) {
+    lines.push(onboard);
+    seen.add(onboard.id);
+  }
+  for (const p of accepted) {
+    if (!seen.has(p.id)) {
+      lines.push(p);
+      seen.add(p.id);
+    }
+  }
+
+  return (
+    <div className="control-vehicle-status-card">
+      <div className="control-vehicle-status-card-head">Vehicle {vehicle.id}</div>
+      <dl className="control-vehicle-status-dl">
+        <div className="control-vehicle-status-row">
+          <dt>curr_node</dt>
+          <dd>
+            {vehicle.currentNodeId}
+            {vehicle.targetNodeId != null ? (
+              <span className="control-vehicle-status-sub"> → target {vehicle.targetNodeId}</span>
+            ) : null}
+          </dd>
+        </div>
+        <div className="control-vehicle-status-row">
+          <dt>Action status</dt>
+          <dd>{vehicle.status}</dd>
+        </div>
+        <div className="control-vehicle-status-row control-vehicle-status-row-block">
+          <dt>Accepted request info</dt>
+          <dd>
+            {lines.length === 0 ? (
+              <span className="control-vehicle-status-empty">—</span>
+            ) : (
+              <ul className="control-vehicle-request-list">
+                {lines.map(p => (
+                  <li key={p.id}>{requestSummary(p)}</li>
+                ))}
+              </ul>
+            )}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
 export default function SimulationControls({
   isRunning,
   maxNumVehicles,
@@ -34,10 +108,36 @@ export default function SimulationControls({
   hiddenDim,
   batchSize,
   learningRate,
+  vehicles,
+  passengers,
   onStart,
   onStop,
   onReset,
 }: SimulationControlsProps) {
+  const [selectedVehicleIds, setSelectedVehicleIds] = useState<number[]>([]);
+
+  const toggleVehicleSelection = useCallback((id: number) => {
+    setSelectedVehicleIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
+  }, []);
+
+  const vehicleById = useMemo(() => {
+    const m = new Map<number, Vehicle>();
+    for (const v of vehicles) m.set(v.id, v);
+    return m;
+  }, [vehicles]);
+
+  useEffect(() => {
+    const ids = new Set(vehicles.map(v => v.id));
+    setSelectedVehicleIds(prev => prev.filter(id => ids.has(id)));
+  }, [vehicles]);
+
+  const selectedPanels = useMemo(
+    () => selectedVehicleIds.map(id => ({ id, vehicle: vehicleById.get(id) })),
+    [selectedVehicleIds, vehicleById],
+  );
+
+  const vehicleButtonsDisabled = vehicles.length === 0;
+
   return (
     <div className="panel controls-panel">
       <h3 className="panel-title">Simulation Controls</h3>
@@ -107,6 +207,48 @@ export default function SimulationControls({
               </dd>
             </div>
           </dl>
+
+          <div className="control-vehicles">
+            <div className="control-vehicles-title">Vehicles Information</div>
+            {vehicles.length === 0 ? (
+              <p className="control-vehicles-hint">The list of vehicles running in the simulation is displayed here.</p>
+            ) : (
+              <div
+                className="control-vehicle-buttons"
+                role="group"
+                aria-label="Vehicle status panels"
+              >
+                {vehicles.map(v => {
+                  const selected = selectedVehicleIds.includes(v.id);
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      className={`control-vehicle-chip${selected ? ' is-selected' : ''}`}
+                      onClick={() => toggleVehicleSelection(v.id)}
+                      disabled={vehicleButtonsDisabled}
+                      title={
+                        vehicleButtonsDisabled
+                          ? 'No vehicle data'
+                          : selected
+                            ? 'Click to close panel'
+                            : 'Click to add status panel'
+                      }
+                    >
+                      V{v.id}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {selectedPanels.length > 0 ? (
+              <div className="control-vehicle-status-list">
+                {selectedPanels.map(({ id, vehicle }) =>
+                  vehicle && <VehicleStatusCard key={id} vehicle={vehicle} passengers={passengers} />
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
